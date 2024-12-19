@@ -2,47 +2,60 @@ const doc = window.document;
 const displayExpression = doc.querySelector(".display");
 const buttons = Array.from(doc.getElementsByClassName("button"));
 
+const operators = ["+", "-", "*", "/", "%"];
+
 buttons.map((button) => {
   button.addEventListener("click", (el) => {
     const value = el.target.innerText;
     const currentExpression = displayExpression.value;
 
-    // Сброс выражения
     if (value === "AC") {
       displayExpression.value = "";
     }
-    // Удаление последнего символа
     else if (value === "←") {
       displayExpression.value = currentExpression.slice(0, -1);
+    } 
+    else if (
+      currentExpression === "" && value === "-"
+    ) {
+      displayExpression.value += value;
     }
-    // Если выражение пустое и вводится оператор или степень
-    else if (!currentExpression && ("+*/%)".includes(value) || el.target.classList.contains("button--exponent"))) {
-      // Ничего не делаем
+    else if (
+      currentExpression === "-" &&
+      (operators.includes(value) || el.target.classList.contains("button--exponent"))
+    ) {
       return;
     }
-    else if (currentExpression === '-' && ("+*/%-)".includes(value) || el.target.classList.contains("button--exponent"))) {
-      // Ничего не делаем
+    else if (
+      !currentExpression &&
+      (operators.includes(value) || el.target.classList.contains("button--exponent"))
+    ) {
       return;
     }
-    // Добавление степени "**"
-    else if (el.target.classList.contains("button--exponent") || value === 'xⁿ') {
-      displayExpression.value += "**";
+    else if (
+      operators.includes(value) &&
+      operators.includes(currentExpression[currentExpression.length - 1])
+    ) {
+      return;
     }
-    // Вычисление выражения
+    else if (el.target.classList.contains("button--exponent")) {
+      if (currentExpression.slice(-2) === "**" || operators.includes(currentExpression[currentExpression.length - 1])) {
+        return;
+      } else {
+        displayExpression.value += "**";
+      }
+    }
     else if (value === "=") {
       calculate();
     }
-    // Если в начале 0 и вводится число, заменяем 0
     else if (currentExpression === "0" && !isNaN(value)) {
       displayExpression.value = value;
     }
-    // Добавление символа в выражение
     else {
       displayExpression.value += value;
     }
   });
 });
-
 
 function calculate() {
   try {
