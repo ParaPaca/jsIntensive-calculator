@@ -11,47 +11,54 @@ buttons.map((button) => {
 
     if (value === "AC") {
       displayExpression.value = "";
-    }
-    else if (value === "←") {
+    } else if (value === "←") {
       displayExpression.value = currentExpression.slice(0, -1);
-    } 
-    else if (
-      currentExpression === "" && value === "-"
-    ) {
+    } else if (currentExpression === "" && value === "-") {
       displayExpression.value += value;
-    }
-    else if (
+    } else if (
       currentExpression === "-" &&
-      (operators.includes(value) || el.target.classList.contains("button--exponent"))
+      (operators.includes(value) ||
+        el.target.classList.contains("button--exponent"))
     ) {
       return;
-    }
-    else if (
+    } else if (
       !currentExpression &&
-      (operators.includes(value) || el.target.classList.contains("button--exponent"))
+      (operators.includes(value) ||
+        el.target.classList.contains("button--exponent"))
     ) {
       return;
-    }
-    else if (
+    } else if (
       operators.includes(value) &&
       operators.includes(currentExpression[currentExpression.length - 1])
     ) {
       return;
-    }
-    else if (el.target.classList.contains("button--exponent")) {
-      if (currentExpression.slice(-2) === "**" || operators.includes(currentExpression[currentExpression.length - 1])) {
+    } else if (el.target.classList.contains("button--exponent")) {
+      if (
+        currentExpression.slice(-2) === "**" ||
+        operators.includes(currentExpression[currentExpression.length - 1])
+      ) {
         return;
       } else {
         displayExpression.value += "**";
       }
-    }
-    else if (value === "=") {
+    } else if (value === ".") {
+      if (
+        operators.includes(currentExpression[currentExpression.length - 1]) ||
+        currentExpression.endsWith("**")
+      ) {
+        return;
+      }
+      const lastNumber = currentExpression.split(/[\+\-\*\/\%]/).pop();
+      if (lastNumber.includes(".")) {
+        return;
+      } else {
+        displayExpression.value += value;
+      }
+    } else if (value === "=") {
       calculate();
-    }
-    else if (currentExpression === "0" && !isNaN(value)) {
+    } else if (currentExpression === "0" && !isNaN(value)) {
       displayExpression.value = value;
-    }
-    else {
+    } else {
       displayExpression.value += value;
     }
   });
@@ -85,7 +92,10 @@ function evaluateExpression(expression) {
       tokens.push("**");
       i += 2;
     } else if ("+-*/%()".includes(expression[i])) {
-      if (expression[i] === "-" && (i === 0 || "+-*/%(".includes(expression[i - 1]))) {
+      if (
+        expression[i] === "-" &&
+        (i === 0 || "+-*/%(".includes(expression[i - 1]))
+      ) {
         let number = "-";
         i++;
         while (i < expression.length && /\d|\./.test(expression[i])) {
@@ -116,8 +126,12 @@ function evaluateExpression(expression) {
       while (
         operatorStack.length > 0 &&
         operatorStack[operatorStack.length - 1] !== "(" &&
-        ((operators[token].associativity === "L" && operators[token].precedence <= operators[operatorStack[operatorStack.length - 1]].precedence) ||
-          (operators[token].associativity === "R" && operators[token].precedence < operators[operatorStack[operatorStack.length - 1]].precedence))
+        ((operators[token].associativity === "L" &&
+          operators[token].precedence <=
+            operators[operatorStack[operatorStack.length - 1]].precedence) ||
+          (operators[token].associativity === "R" &&
+            operators[token].precedence <
+              operators[operatorStack[operatorStack.length - 1]].precedence))
       ) {
         outputQueue.push(operatorStack.pop());
       }
